@@ -206,6 +206,7 @@ ansible_shell_type: powershell
 '''
 
 import re
+import shlex
 from os.path import exists, getsize
 from socket import gaierror
 from ssl import SSLError
@@ -410,7 +411,16 @@ class Connection(ConnectionBase):
             #FIXME: Fix the unecessary invocation of cmd and run the command directly
             '''
             program_path = "cmd.exe"
-            arguments = "/c %s" % cmd
+            args = shlex.split(cmd)
+
+            for i in range(0, len(args)):
+                if args[i] not in ["-EncodedCommand", "-EncodedArguments"]:
+                    continue
+                index = i + 1
+                if len(args[index]) >= 2 and args[index][0] == args[index][-1] and args[index][0] in ("'", '"'):
+                    args[index] = args[index][1:-1]
+
+            arguments = "/c %s" % (" ".join(args))
         else:
             program_path = self.get_option("executable")
             arguments = re.sub(r"^%s\s*" % program_path, "", cmd)

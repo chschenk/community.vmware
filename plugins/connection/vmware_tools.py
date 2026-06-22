@@ -547,7 +547,7 @@ class Connection(ConnectionBase):
         stderr_response = self._fetch_file_from_vm(stderr)
         self.delete_file_in_guest(stderr)
 
-        return pid_info.exitCode, stdout_response.text, stderr_response.text
+        return pid_info.exitCode, stdout_response.content, stderr_response.content
 
     def fetch_file(self, in_path, out_path):
         """Fetch file."""
